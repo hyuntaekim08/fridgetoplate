@@ -27,6 +27,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.fridgetoplate.R
@@ -126,8 +127,15 @@ fun FridgeScreen(
                 contentAlignment = Alignment.Center
             ) {
                 Text (
-                    text = "No matching ingredients",
-                    style = MaterialTheme.typography.bodyLarge
+                    text = stringResource(
+                        if (ingredients.isEmpty()) {
+                            R.string.fridge_empty
+                        } else {
+                            R.string.ingredients_no_match
+                        }
+                    ),
+                    style = MaterialTheme.typography.bodyLarge,
+                    textAlign = TextAlign.Center
                 )
             }
         } else {
@@ -173,6 +181,28 @@ fun FridgeScreen(
 @Composable
 private fun FridgeScreenPreview() {
     MaterialTheme {
-        FridgeRoute()
+        FridgeScreen(
+            ingredients = listOf(
+                FridgeIngredient(1L, "Egg", IngredientCategory.OTHER),
+                FridgeIngredient(2L, "Onion", IngredientCategory.VEGETABLES)
+            ),
+            onAddIngredient = { _, _ -> },
+            onDeleteIngredient = {}
+        )
+    }
+}
+
+@Preview(
+    name = "Empty fridge",
+    showBackground = true
+)
+@Composable
+private fun EmptyFridgeScreenPreview() {
+    MaterialTheme {
+        FridgeScreen(
+            ingredients = emptyList(),
+            onAddIngredient = { _, _ -> },
+            onDeleteIngredient = {}
+        )
     }
 }
