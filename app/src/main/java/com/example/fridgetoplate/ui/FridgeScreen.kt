@@ -90,15 +90,10 @@ fun FridgeScreen(modifier: Modifier = Modifier) {
                 label = { Text(stringResource(R.string.filter_all)) }
             )
             categories.forEach { category ->
-                val labelRes = when (category) {
-                    IngredientCategory.VEGETABLES -> R.string.category_vegetables
-                    IngredientCategory.MEAT -> R.string.category_meat
-                    IngredientCategory.OTHER -> R.string.category_other
-                }
-                FilterChip(
+                IngredientCategoryChip(
+                    category = category,
                     selected = selectedCategory == category,
-                    onClick = { selectedCategory = category },
-                    label = { Text(stringResource(labelRes)) }
+                    onClick = { selectedCategory = category }
                 )
             }
         }
@@ -136,60 +131,14 @@ fun FridgeScreen(modifier: Modifier = Modifier) {
     }
 
     if (showAddDialog) {
-        var ingredientName by rememberSaveable { mutableStateOf("") }
-        var ingredientCategory by rememberSaveable { mutableStateOf(IngredientCategory.OTHER) }
-        AlertDialog(
-            onDismissRequest = { showAddDialog = false },
-            title = {Text(stringResource(R.string.add_ingredient))},
-            text = {
-                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                    OutlinedTextField(
-                        value = ingredientName,
-                        onValueChange = { ingredientName = it },
-                        label = { Text(stringResource(R.string.ingredient_name)) },
-                        singleLine = true,
-                        modifier = Modifier.fillMaxWidth()
-                    )
-                    Row(
-                        modifier = Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
-                        IngredientCategory.entries.forEach { category ->
-                            val labelRes = when(category) {
-                                IngredientCategory.VEGETABLES -> R.string.category_vegetables
-                                IngredientCategory.MEAT -> R.string.category_meat
-                                IngredientCategory.OTHER -> R.string.category_other
-                            }
-                            FilterChip(
-                                selected = ingredientCategory == category,
-                                onClick = { ingredientCategory = category },
-                                label = { Text(stringResource(labelRes)) }
-                            )
-                        }
-                    }
-                }
-            },
-            confirmButton = {
-                TextButton(
-                    enabled = ingredientName.isNotBlank(),
-                    onClick = {
-                        val name = ingredientName.trim()
-                        if(name.isNotEmpty()) {
-                            val nextId = (ingredients.maxOfOrNull { it.id } ?: 0L) + 1L
-                            ingredients.add(
-                                FridgeIngredient(nextId, name = name, category = IngredientCategory.OTHER)
-                            )
-                        }
-                        showAddDialog = false
-                    }
-                ) {
-                    Text(stringResource(R.string.add))
-                }
-            },
-            dismissButton = {
-                TextButton(onClick = {showAddDialog = false}) {
-                    Text(stringResource(R.string.cancel))
-                }
+        AddIngredientDialog(
+            onDismiss = { showAddDialog = false },
+            onAdd = { name, category ->
+                val nextId = (ingredients.maxOfOrNull { it.id } ?: 0L) + 1L
+                ingredients.add(
+                    FridgeIngredient(nextId, name = name, category = category)
+                )
+                showAddDialog = false
             }
         )
     }
