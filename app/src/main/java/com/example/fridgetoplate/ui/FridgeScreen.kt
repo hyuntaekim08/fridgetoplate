@@ -12,13 +12,11 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
@@ -33,13 +31,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.fridgetoplate.R
 
-
 @Composable
-fun FridgeScreen(modifier: Modifier = Modifier) {
-    var searchQuery by rememberSaveable{ mutableStateOf("") }
-    var selectedCategory by rememberSaveable { mutableStateOf<IngredientCategory?>(null) }
-    var showAddDialog by rememberSaveable { mutableStateOf(false)}
-    val categories = IngredientCategory.entries
+fun FridgeRoute(modifier: Modifier = Modifier) {
     val ingredients = remember {
         mutableStateListOf(
             FridgeIngredient(1L, "Egg", IngredientCategory.OTHER),
@@ -48,6 +41,32 @@ fun FridgeScreen(modifier: Modifier = Modifier) {
             FridgeIngredient(4L, "Chicken", IngredientCategory.MEAT)
         )
     }
+    FridgeScreen(
+        ingredients = ingredients,
+        onAddIngredient = { name, category ->
+            val nextId = (ingredients.maxOfOrNull { it.id } ?: 0L) + 1L
+            ingredients.add(
+                FridgeIngredient(nextId, name = name, category = category)
+            )
+        },
+        onDeleteIngredient = { id ->
+            ingredients.removeAll { it.id == id }
+        },
+        modifier
+    )
+}
+
+@Composable
+fun FridgeScreen(
+    ingredients: List<FridgeIngredient>,
+    onAddIngredient: (String, IngredientCategory) -> Unit,
+    onDeleteIngredient: (Long) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    var searchQuery by rememberSaveable{ mutableStateOf("") }
+    var selectedCategory by rememberSaveable { mutableStateOf<IngredientCategory?>(null) }
+    var showAddDialog by rememberSaveable { mutableStateOf(false)}
+    val categories = IngredientCategory.entries
 
     val filterIngredients = ingredients.filter { ingredient ->
         val matchesSearch = ingredient.name.contains(
@@ -78,6 +97,8 @@ fun FridgeScreen(modifier: Modifier = Modifier) {
             onValueChange = {searchQuery = it},
             modifier = Modifier.fillMaxWidth()
         )
+
+        // show category filters
         Row(modifier = Modifier
             .fillMaxWidth()
             .horizontalScroll(rememberScrollState()),
@@ -97,6 +118,8 @@ fun FridgeScreen(modifier: Modifier = Modifier) {
                 )
             }
         }
+
+        // show ingredients cards
         if (filterIngredients.isEmpty()) {
             Box(
                 modifier = Modifier.fillMaxWidth().weight(1f),
@@ -118,10 +141,15 @@ fun FridgeScreen(modifier: Modifier = Modifier) {
                     items = filterIngredients,
                     key = { ingredient -> ingredient.id }
                 ) { ingredient ->
-                    IngredientCard(ingredient)
+                    IngredientCard(
+                        ingredient,
+                        onDelete = onDeleteIngredient
+                    )
                 }
             }
         }
+
+        // render add ingredient buttons
         Button(
             onClick = { showAddDialog = true },
             modifier = Modifier.fillMaxWidth()
@@ -134,10 +162,7 @@ fun FridgeScreen(modifier: Modifier = Modifier) {
         AddIngredientDialog(
             onDismiss = { showAddDialog = false },
             onAdd = { name, category ->
-                val nextId = (ingredients.maxOfOrNull { it.id } ?: 0L) + 1L
-                ingredients.add(
-                    FridgeIngredient(nextId, name = name, category = category)
-                )
+                onAddIngredient(name, category)
                 showAddDialog = false
             }
         )
@@ -148,6 +173,6 @@ fun FridgeScreen(modifier: Modifier = Modifier) {
 @Composable
 private fun FridgeScreenPreview() {
     MaterialTheme {
-        FridgeScreen()
+        FridgeRoute()
     }
 }

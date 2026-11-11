@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.ui.Modifier
+import com.example.fridgetoplate.ui.FridgeRoute
 import com.example.fridgetoplate.ui.FridgeScreen
 
 class MainActivity : ComponentActivity() {
@@ -16,7 +17,7 @@ class MainActivity : ComponentActivity() {
         setContent{
             MaterialTheme{
                 Scaffold { innerPadding ->
-                    FridgeScreen(modifier = Modifier.padding(innerPadding))
+                    FridgeRoute(modifier = Modifier.padding(innerPadding))
                 }
             }
         }
