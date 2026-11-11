@@ -21,7 +21,9 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -31,18 +33,21 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.fridgetoplate.R
 
+
 @Composable
 fun FridgeScreen(modifier: Modifier = Modifier) {
     var searchQuery by rememberSaveable{ mutableStateOf("") }
     var selectedCategory by rememberSaveable { mutableStateOf<IngredientCategory?>(null) }
     var showAddDialog by rememberSaveable { mutableStateOf(false)}
     val categories = IngredientCategory.entries
-    val ingredients = listOf(
-        FridgeIngredient(1L, "Egg", IngredientCategory.OTHER),
-        FridgeIngredient(2L, "Onion", IngredientCategory.VEGETABLES),
-        FridgeIngredient(3L, "Carrot", IngredientCategory.VEGETABLES),
-        FridgeIngredient(4L, "Chicken", IngredientCategory.MEAT)
-    )
+    val ingredients = remember {
+        mutableStateListOf(
+            FridgeIngredient(1L, "Egg", IngredientCategory.OTHER),
+            FridgeIngredient(2L, "Onion", IngredientCategory.VEGETABLES),
+            FridgeIngredient(3L, "Carrot", IngredientCategory.VEGETABLES),
+            FridgeIngredient(4L, "Chicken", IngredientCategory.MEAT)
+        )
+    }
 
     val filterIngredients = ingredients.filter { ingredient ->
         val matchesSearch = ingredient.name.contains(
@@ -131,13 +136,59 @@ fun FridgeScreen(modifier: Modifier = Modifier) {
     }
 
     if (showAddDialog) {
+        var ingredientName by rememberSaveable { mutableStateOf("") }
+        var ingredientCategory by rememberSaveable { mutableStateOf(IngredientCategory.OTHER) }
         AlertDialog(
             onDismissRequest = { showAddDialog = false },
             title = {Text(stringResource(R.string.add_ingredient))},
-            text = {Text(stringResource(R.string.add_ingredient_alert_text))},
+            text = {
+                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    OutlinedTextField(
+                        value = ingredientName,
+                        onValueChange = { ingredientName = it },
+                        label = { Text(stringResource(R.string.ingredient_name)) },
+                        singleLine = true,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                    Row(
+                        modifier = Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        IngredientCategory.entries.forEach { category ->
+                            val labelRes = when(category) {
+                                IngredientCategory.VEGETABLES -> R.string.category_vegetables
+                                IngredientCategory.MEAT -> R.string.category_meat
+                                IngredientCategory.OTHER -> R.string.category_other
+                            }
+                            FilterChip(
+                                selected = ingredientCategory == category,
+                                onClick = { ingredientCategory = category },
+                                label = { Text(stringResource(labelRes)) }
+                            )
+                        }
+                    }
+                }
+            },
             confirmButton = {
+                TextButton(
+                    enabled = ingredientName.isNotBlank(),
+                    onClick = {
+                        val name = ingredientName.trim()
+                        if(name.isNotEmpty()) {
+                            val nextId = (ingredients.maxOfOrNull { it.id } ?: 0L) + 1L
+                            ingredients.add(
+                                FridgeIngredient(nextId, name = name, category = IngredientCategory.OTHER)
+                            )
+                        }
+                        showAddDialog = false
+                    }
+                ) {
+                    Text(stringResource(R.string.add))
+                }
+            },
+            dismissButton = {
                 TextButton(onClick = {showAddDialog = false}) {
-                    Text(stringResource(R.string.close))
+                    Text(stringResource(R.string.cancel))
                 }
             }
         )
