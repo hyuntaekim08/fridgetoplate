@@ -13,4 +13,7 @@
     <string name="delete_ingredient">Delete</string>
     <string name="fridge_empty">Your fridge is empty. Add your first ingredient.</string>
     <string name="ingredients_no_match">No matching ingredients. Try another search or category.</string>
+    <string name="nav_fridge">Fridge</string>
+    <string name="nav_recipes">Recipes</string>
+    <string name="nav_shopping">Shopping</string>
 </resources>
