@@ -12,10 +12,13 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -32,6 +35,7 @@ import com.example.fridgetoplate.R
 fun FridgeScreen(modifier: Modifier = Modifier) {
     var searchQuery by rememberSaveable{ mutableStateOf("") }
     var selectedCategory by rememberSaveable { mutableStateOf<IngredientCategory?>(null) }
+    var showAddDialog by rememberSaveable { mutableStateOf(false)}
     val categories = IngredientCategory.entries
     val ingredients = listOf(
         FridgeIngredient(1L, "Egg", IngredientCategory.OTHER),
@@ -118,6 +122,25 @@ fun FridgeScreen(modifier: Modifier = Modifier) {
                 }
             }
         }
+        Button(
+            onClick = { showAddDialog = true },
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text(stringResource(R.string.add_ingredient))
+        }
+    }
+
+    if (showAddDialog) {
+        AlertDialog(
+            onDismissRequest = { showAddDialog = false },
+            title = {Text(stringResource(R.string.add_ingredient))},
+            text = {Text(stringResource(R.string.add_ingredient_alert_text))},
+            confirmButton = {
+                TextButton(onClick = {showAddDialog = false}) {
+                    Text(stringResource(R.string.close))
+                }
+            }
+        )
     }
 }
 

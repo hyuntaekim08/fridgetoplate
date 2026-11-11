@@ -4,4 +4,7 @@
     <string name="category_vegetables">Vegetables</string>
     <string name="category_meat">Meat</string>
     <string name="category_other">Other</string>
+    <string name="add_ingredient">Add ingredient</string>
+    <string name="add_ingredient_alert_text">Ingredient input will go here.</string>
+    <string name="close">Close</string>
 </resources>
