@@ -16,4 +16,7 @@
     <string name="nav_fridge">Fridge</string>
     <string name="nav_recipes">Recipes</string>
     <string name="nav_shopping">Shopping</string>
+    <string name="fridge_title">My Fridge</string>
+    <string name="fridge_subtitle">What do we cook today?</string>
+    <string name="ingredient_count">%1$d ingredients</string>
 </resources>
